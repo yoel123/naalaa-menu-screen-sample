@@ -1,4 +1,6 @@
-this is an example of how to create a menu screen for naalaa
+this is an example of how to create a menu screen for naalaa.
+
+I needed a way to do this with little code as posible and in a modular way. so i created this.
 
 
 NaaLaa stands for 'Not An Advanced Language At All'
