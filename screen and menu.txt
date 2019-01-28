@@ -1,0 +1,249 @@
+import "Keycodes.lib"
+import "Speed.lib"
+
+set window (screenw()-300 )/2, (screenh() - 400)/2, 520, 540
+
+
+
+set redraw off
+
+
+rem btns array and the clicked array to hold click response
+btns?[2]
+btnsClick[2] 
+
+
+
+
+
+rem ------- load assets---------
+btnimg = 1
+hoverimg = 2
+load image btnimg , "res/btn.png"
+load image hoverimg , "res/btnhover.png"
+
+
+rem init first menu
+
+rem	arguments reminder createBtn?(x,y,w,h,img,hover)
+
+btns[0] = createBtn(100,100,298,56,btnimg ,hoverimg )
+btns[1] = createBtn(100,200,298,56,btnimg ,hoverimg )
+
+
+rem mouce cordenates
+mx = mousex()
+my = mousey()
+
+rem a flag to check if start screen was shown
+didStartScreen = false
+
+rem ---------game loop
+do
+
+    set color 0, 0, 0
+    cls
+
+rem ---------------start game loop--------------
+
+    rem --------------------- update
+         rem update mouse variable to current mouse pos
+      mx = mousex()
+      my = mousey()
+
+    rem -------------------- render
+		rem check if start screen was shown and make sure its shown once
+		if not didStartScreen 
+			c = startScreen()
+			didStartScreen =true
+		endif
+    rem show menu screen
+		c = menuScreenTest(btns,btnsClick)
+ 
+		rem check if second button clicked (outside of screen function)
+		if btnsClick[1]
+			rem go to click two screen
+			c = clicktwo()
+		endif
+
+
+rem ---------------end game loop----------------------
+    redraw
+    _SPD_HoldFrame 60
+until keydown(VK_ESC, true) or not running()
+
+
+
+rem create btnt object
+function createBtn?(x,y,w,h,img,hover)
+
+	b?
+	b.x = x
+	b.y = y
+	b.w = w
+	b.h = h
+	b.img = img
+	b.imgHover = hover
+
+
+	return b
+endfunc
+rem end createBtn
+
+
+rem --------------------screen tests------------------
+
+function startScreen()
+
+	txt$[3]
+	txt$[0] = "this is a test start screen"
+	txt$[1] = "---------------------------"
+	txt$[2] = "press space to continue"
+	c = textScreen(txt)
+
+	return 0 
+
+endfunc
+rem end start screen
+
+function clickOne()
+
+	txt$[3]
+	txt$[0] = "you clicked first btn"
+	txt$[1] = "######################"
+	txt$[2] = "press space to continue"
+	c = textScreen(txt)
+
+	return 0 
+
+endfunc
+rem end clickOne screen
+
+
+function clicktwo()
+
+	txt$[3]
+	txt$[0] = "you clicked second  btn"
+	txt$[1] = " "
+	txt$[2] = "press space to continue"
+	c = textScreen(txt)
+
+	return 0 
+
+endfunc
+rem end clickOne screen
+
+function menuScreenTest(btns?[],&clickr[])
+
+	c = menuScreen(btns,clickr)
+
+	if clickr[0]
+		c = clickOne()
+	endif
+
+endfunc
+
+rem --------------------end screen tests------------------
+
+
+
+rem clickObj
+function clickObj(o?,mx,my)
+
+    rem check if object is clicked
+    if mousebutton(0) and    mx < o.w+o.x and mx > o.x and my < o.h+o.y and my > o.y
+
+        return true
+
+    endif
+
+    return false
+endfunc
+rem end clickObj
+
+rem clickObj
+function hoverObj(o?,mx,my)
+
+    rem check if object is hoverd
+    if   mx < o.w+o.x and mx > o.x and my < o.h+o.y and my > o.y
+
+        return true
+
+    endif
+
+    return false
+endfunc
+rem end clickObj
+
+function textScreen(sr$[])
+	
+	do
+		set color 0, 0, 0
+		cls
+		if keydown(VK_ESC, true) then end
+
+		
+		set caret width(primary)/2, 20
+
+		set color 255, 255, 255
+
+		for i = 0 to sizeof(sr)-1
+			center sr[i]
+		next
+
+		redraw
+    
+   	 _SPD_HoldFrame 60
+	until keydown(VK_SPACE, true) or not running()
+
+	return 0 
+
+endfunc
+
+function menuScreen(btns?[],&clicked[])
+	
+	ystop = false
+	rem reset clicked array just in case
+	for i = 0 to sizeof(clicked)-1
+		clicked[i] = false
+	next	
+
+	do
+		set color 0, 0, 0
+		cls
+		set color 255, 255, 255
+		
+		rem get mouse xy pos
+		mx = mousex()
+    my = mousey()
+
+		rem lop all btns
+		for i = 0 to sizeof(btns)-1
+
+			rem ----------update
+			rem if click set the current position in clicked as true and stop menu screen 
+			if clickObj(btns[i],mx,my) 
+				clicked[i] = true
+				ystop = true
+			endif
+			rem ----------render
+
+			rem if mouse hovers btn show hover image of byn, else show normal btn
+			if hoverObj(btns[i],mx,my)
+				draw image btns[i].imgHover, btns[i].x, btns[i].y
+			else
+				draw image btns[i].img, btns[i].x, btns[i].y
+			endif
+
+		next
+		rem end for
+		redraw
+    
+   	 _SPD_HoldFrame 60
+	until ystop  or not running()
+
+	return 0  
+
+endfunc
+
+
